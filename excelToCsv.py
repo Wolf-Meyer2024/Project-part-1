@@ -1,6 +1,7 @@
 import os
 import glob
 import pandas as pd
+import sqlite3
 from datetime import datetime
 
 def get_valid_output_filename():
@@ -83,6 +84,13 @@ def main():
     final_df = clean_and_sort_data(dataframes)
 
     try:
+        # Save to SQLite database using pandas to_sql
+        database_name = output_filename[:-4] + ".db"
+        conn = sqlite3.connect(output_filename)
+        final_df.to_sql("combined_data", conn, if_exists="replace", index=False)
+        conn.close()
+        print(f"Data written to SQLite database: {output_filename}")
+        #also write to csv because why not
         final_df.to_csv(output_filename, index=False)
         print(f"✅ Data successfully written to '{output_filename}'")
     except Exception as e:
